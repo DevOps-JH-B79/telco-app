@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: telco-app
+  namespace: telco
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: telco-app
+
+  template:
+    metadata:
+      labels:
+        app: telco-app
+
+    spec:
+      containers:
+      - name: telco-app
+
+        image: 208249468649.dkr.ecr.ap-south-1.amazonaws.com/telco-app:latest
+
+        ports:
+        - containerPort: 8080
