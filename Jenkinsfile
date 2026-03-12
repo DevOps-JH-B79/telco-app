@@ -25,7 +25,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build --no-cache-t telco-app:${IMAGE_TAG} ."
+                sh "docker build --no-cache -t telco-app:${IMAGE_TAG} ."
             }
         }
 
