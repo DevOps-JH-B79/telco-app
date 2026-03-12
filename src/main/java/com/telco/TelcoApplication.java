@@ -19,6 +19,6 @@ public class TelcoApplication {
 
     @GetMapping("/login")
     public String login() {
-        return "Login Feature is now available in V1.1";
+        return "Login Feature is now available in V1.2";
     }
 }
