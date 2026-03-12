@@ -14,11 +14,11 @@ public class TelcoApplication {
 
     @GetMapping("/")
     public String home() {
-        return "Welcome to Telco appV1.0  DevOps Project íº€";
+        return "Welcome to Telco App V1.1 - Login Feature ðŸš€";
     }
 
-    @GetMapping("/health")
-    public String health() {
-        return "Application is healthy";
+    @GetMapping("/login")
+    public String login() {
+        return "Login Feature is now available in V1.1";
     }
 }
