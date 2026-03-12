@@ -1,9 +1,9 @@
+/* groovylint-disable-next-line CompileStatic */
 pipeline {
+
     agent any
 
     environment {
-        AWS_REGION = "ap-south-1"
-        ECR_REPO = "208249468649.dkr.ecr.ap-south-1.amazonaws.com/telco-app"
         IMAGE_TAG = "latest"
     }
 
@@ -11,7 +11,7 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/DevOps-JH-B79/telco-app.git'
+                echo 'Code already checked out by Jenkins'
             }
         }
 
@@ -23,33 +23,35 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t telco-app .'
+                /* groovylint-disable-next-line GStringExpressionWithinString */
+                sh 'docker build -t telco-app:${IMAGE_TAG} .'
             }
         }
 
         stage('Login to ECR') {
             steps {
                 sh '''
-                aws ecr get-login-password --region $AWS_REGION \
-                | docker login --username AWS \
-                --password-stdin 208249468649.dkr.ecr.ap-south-1.amazonaws.com
+                aws ecr get-login-password --region ap-south-1 | \
+                docker login --username AWS --password-stdin 208249468649.dkr.ecr.ap-south-1.amazonaws.com
                 '''
             }
         }
 
         stage('Push Image to ECR') {
             steps {
+                /* groovylint-disable-next-line GStringExpressionWithinString */
                 sh '''
-                docker tag telco-app:latest $ECR_REPO:$IMAGE_TAG
-                docker push $ECR_REPO:$IMAGE_TAG
+                docker tag telco-app:${IMAGE_TAG} 208249468649.dkr.ecr.ap-south-1.amazonaws.com/telco-app:${IMAGE_TAG}
+                docker push 208249468649.dkr.ecr.ap-south-1.amazonaws.com/telco-app:${IMAGE_TAG}
                 '''
             }
         }
 
         stage('Deploy to EKS') {
             steps {
-                sh 'kubectl apply -f k8s/'
+                sh 'kubectl rollout restart deployment telco-app -n telco'
             }
         }
+
     }
 }
