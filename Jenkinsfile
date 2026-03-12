@@ -9,10 +9,6 @@ pipeline {
         K8S_NAMESPACE = "telco"
     }
 
-    tools {
-        maven 'maven'
-    }
-
     stages {
 
         stage('Checkout Code') {
