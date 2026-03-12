@@ -1,57 +1,76 @@
-/* groovylint-disable-next-line CompileStatic */
 pipeline {
 
-    agent any
+```
+agent any
 
-    environment {
-        IMAGE_TAG = "latest"
+environment {
+    AWS_REGION = "ap-south-1"
+    ECR_REPO = "208249468649.dkr.ecr.ap-south-1.amazonaws.com/telco-app"
+    IMAGE_TAG = "latest"
+    K8S_NAMESPACE = "telco"
+}
+
+tools {
+    maven 'maven'
+}
+
+stages {
+
+    stage('Checkout Code') {
+        steps {
+            echo 'Code already checked out by Jenkins'
+        }
     }
 
-    stages {
-
-        stage('Checkout Code') {
-            steps {
-                echo 'Code already checked out by Jenkins'
-            }
+    stage('Build Application') {
+        steps {
+            sh 'mvn clean package'
         }
-
-        stage('Build Application') {
-            steps {
-                sh 'mvn clean package'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                /* groovylint-disable-next-line GStringExpressionWithinString */
-                sh 'docker build -t telco-app:${IMAGE_TAG} .'
-            }
-        }
-
-        stage('Login to ECR') {
-            steps {
-                sh '''
-                aws ecr get-login-password --region ap-south-1 | \
-                docker login --username AWS --password-stdin 208249468649.dkr.ecr.ap-south-1.amazonaws.com
-                '''
-            }
-        }
-
-        stage('Push Image to ECR') {
-            steps {
-                /* groovylint-disable-next-line GStringExpressionWithinString */
-                sh '''
-                docker tag telco-app:${IMAGE_TAG} 208249468649.dkr.ecr.ap-south-1.amazonaws.com/telco-app:${IMAGE_TAG}
-                docker push 208249468649.dkr.ecr.ap-south-1.amazonaws.com/telco-app:${IMAGE_TAG}
-                '''
-            }
-        }
-
-        stage('Deploy to EKS') {
-            steps {
-                sh 'kubectl rollout restart deployment telco-app -n telco'
-            }
-        }
-
     }
+
+    stage('Build Docker Image') {
+        steps {
+            sh "docker build -t telco-app:${IMAGE_TAG} ."
+        }
+    }
+
+    stage('Login to ECR') {
+        steps {
+            sh '''
+            aws ecr get-login-password --region $AWS_REGION | \
+            docker login --username AWS --password-stdin $ECR_REPO
+            '''
+        }
+    }
+
+    stage('Push Image to ECR') {
+        steps {
+            sh '''
+            docker tag telco-app:${IMAGE_TAG} $ECR_REPO:${IMAGE_TAG}
+            docker push $ECR_REPO:${IMAGE_TAG}
+            '''
+        }
+    }
+
+    stage('Deploy to EKS') {
+        steps {
+            sh '''
+            kubectl rollout restart deployment telco-app -n $K8S_NAMESPACE
+            '''
+        }
+    }
+
+}
+
+post {
+    success {
+        echo 'Pipeline executed successfully. Deployment completed.'
+    }
+
+    failure {
+        echo 'Pipeline failed. Check logs for details.'
+    }
+}
+```
+
 }
