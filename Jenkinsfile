@@ -3,10 +3,10 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = "ap-south-1"
-        ECR_REPO = "208249468649.dkr.ecr.ap-south-1.amazonaws.com/telco-app"
-        IMAGE_TAG = "latest"
-        K8S_NAMESPACE = "telco"
+        AWS_REGION = 'ap-south-1'
+        ECR_REPO = '208249468649.dkr.ecr.ap-south-1.amazonaws.com/telco-app'
+        IMAGE_TAG = 'latest'
+        K8S_NAMESPACE = 'telco'
     }
 
     stages {
@@ -25,7 +25,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build --no-cache -t telco-app:${IMAGE_TAG} ."
+                sh 'docker build --no-cache -t $ECR_REPO:$IMAGE_TAG .'
             }
         }
 
@@ -41,8 +41,7 @@ pipeline {
         stage('Push Image to ECR') {
             steps {
                 sh '''
-                docker tag telco-app:${IMAGE_TAG} $ECR_REPO:${IMAGE_TAG}
-                docker push $ECR_REPO:${IMAGE_TAG}
+                docker push $ECR_REPO:$IMAGE_TAG
                 '''
             }
         }
