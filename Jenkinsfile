@@ -41,7 +41,7 @@ pipeline {
         stage('Push Image to ECR') {
             steps {
                 sh '''
-                sh "docker push $ECR_REPO:$IMAGE_TAG"
+                 "docker push $ECR_REPO:$IMAGE_TAG"
                 '''
             }
         }
@@ -50,7 +50,7 @@ pipeline {
             steps {
                 sh '''
                 kubectl set image deployment/telco-app \
-                telco-app=$ECR_REPO:$IMAGE_TAG \
+                telshco-app=$ECR_REPO:$IMAGE_TAG \
                 -n $K8S_NAMESPACE
                 '''
             }
