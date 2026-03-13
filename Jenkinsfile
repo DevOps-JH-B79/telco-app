@@ -5,7 +5,7 @@ pipeline {
     environment {
         AWS_REGION = 'ap-south-1'
         ECR_REPO = '208249468649.dkr.ecr.ap-south-1.amazonaws.com/telco-app'
-        IMAGE_TAG = '${BUILD_NUMBER}'
+        IMAGE_TAG = "${BUILD_NUMBER}"
         K8S_NAMESPACE = 'telco'
     }
 
