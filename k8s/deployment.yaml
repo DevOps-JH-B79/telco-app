@@ -20,6 +20,6 @@ spec:
     spec:
       containers:
       - name: telco-app
-        image: 208249468649.dkr.ecr.ap-south-1.amazonaws.com/telco-app:33
+        image: 208249468649.dkr.ecr.ap-south-1.amazonaws.com/telco-app:35
         ports:
         - containerPort: 8080
