@@ -52,19 +52,25 @@ pipeline {
         }
 
         stage('Commit & Push Changes') {
-            steps {
-                sh """
-                git config --global user.email "jenkins@devops.com"
-                git config --global user.name "jenkins"
+    steps {
+        script {
+            sh """
+            git config --global user.email "jenkins@devops.com"
+            git config --global user.name "jenkins"
 
-                git checkout develop
-                
-                git add k8s/deployment.yaml
-                git commit -m "Update image to $IMAGE_TAG"
-                git push origin develop
+            git checkout develop
+            git add k8s/deployment.yaml
+            git commit -m "Update image to $IMAGE_TAG" || true
+            """
+
+            withCredentials([usernamePassword(credentialsId: 'jenkins-creds', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                sh """
+                git push https://$GIT_USER:$GIT_PASS@github.com/DevOps-JH-B79/telco-app.git develop
                 """
             }
         }
+    }
+}
 
     }
 
