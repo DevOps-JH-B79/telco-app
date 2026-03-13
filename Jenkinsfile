@@ -46,27 +46,30 @@ pipeline {
             steps {
                 script {
 
-                    sh """
-                    git config --global user.email "jenkins@devops.com"
-                    git config --global user.name "jenkins"
+                sh """
+                git config --global user.email "jenkins@devops.com"
+                git config --global user.name "jenkins"
 
-                    git checkout develop || git checkout -b develop
+                git checkout develop || git checkout -b develop
 
-                    sed -i "s|image:.*|image: ${env.ECR_REPO}:${env.IMAGE_TAG}|" k8s/deployment.yaml
+                # Sync with remote branch
+                git pull origin develop --rebase
 
-                    git add k8s/deployment.yaml
-                    git commit -m "Update image to ${env.IMAGE_TAG}" || echo "No changes to commit"
-                    """
+                sed -i "s|image:.*|image: ${env.ECR_REPO}:${env.IMAGE_TAG}|" k8s/deployment.yaml
 
-                    withCredentials([usernamePassword(credentialsId: 'jenkins-creds', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
-                        sh """
-                        git push https://$GIT_USER:$GIT_PASS@github.com/DevOps-JH-B79/telco-app.git develop
-                        """
-                    }
+                git add k8s/deployment.yaml
+                git commit -m "Update image to ${env.IMAGE_TAG}" || echo "No changes to commit"
+                """
 
-                }
+                withCredentials([usernamePassword(credentialsId: 'jenkins-creds', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                    sh '''
+                    git push https://$GIT_USER:$GIT_PASS@github.com/DevOps-JH-B79/telco-app.git develop
+                    '''
             }
+
         }
+    }
+}
     }
 
     post {
