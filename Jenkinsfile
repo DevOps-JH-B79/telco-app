@@ -51,7 +51,10 @@ pipeline {
                 git config --global user.name "jenkins"
 
                 git checkout develop || git checkout -b develop
-
+                
+                git reset --hard
+                git clean -fd
+                
                 # Sync with remote branch
                 git pull origin develop --rebase
 
