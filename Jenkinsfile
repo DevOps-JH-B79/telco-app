@@ -5,7 +5,7 @@ pipeline {
     environment {
         AWS_REGION = 'ap-south-1'
         ECR_REPO = '208249468649.dkr.ecr.ap-south-1.amazonaws.com/telco-app'
-        IMAGE_TAG = 'latest'
+        IMAGE_TAG = '${BUILD_NUMBER}'
         K8S_NAMESPACE = 'telco'
     }
 
@@ -49,7 +49,9 @@ pipeline {
         stage('Deploy to EKS') {
             steps {
                 sh '''
-                kubectl rollout restart deployment telco-app -n $K8S_NAMESPACE
+                kubectl set image deployment/telco-app \
+                telco-app=$ECR_REPO:$IMAGE_TAG \
+                -n $K8S_NAMESPACE
                 '''
             }
         }
