@@ -57,6 +57,8 @@ pipeline {
                 git config --global user.email "jenkins@devops.com"
                 git config --global user.name "jenkins"
 
+                git checkout develop
+                
                 git add k8s/deployment.yaml
                 git commit -m "Update image to $IMAGE_TAG"
                 git push origin develop
