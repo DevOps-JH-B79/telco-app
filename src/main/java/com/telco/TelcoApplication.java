@@ -14,7 +14,7 @@ public class TelcoApplication {
 
     @GetMapping("/")
     public String home() {
-        return "Welcome to Telco App V1.5 - Login Feature ";
+        return "Welcome to Telco App V1.6 - Login Feature ";
     }
 
     @GetMapping("/login")
