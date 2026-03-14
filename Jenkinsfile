@@ -9,12 +9,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
-            steps {
-                echo "Building version ${env.IMAGE_TAG}"
-            }
-        }
-
         stage('Build Application') {
             steps {
                 sh 'mvn clean package'
@@ -23,7 +17,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build --no-cache -t ${env.ECR_REPO}:${env.IMAGE_TAG} ."
+                sh "docker build -t ${env.ECR_REPO}:${env.IMAGE_TAG} ."
             }
         }
 
@@ -42,45 +36,14 @@ pipeline {
             }
         }
 
-        stage('Commit & Push Changes') {
+        stage('Deploy to EKS') {
             steps {
-                script {
-
                 sh """
-                git config --global user.email "jenkins@devops.com"
-                git config --global user.name "jenkins"
-
-                git checkout develop || git checkout -b develop
-                
-                git reset --hard
-                git clean -fd
-                
-                # Sync with remote branch
-                git pull origin develop --rebase
-
-                sed -i "s|image:.*|image: ${env.ECR_REPO}:${env.IMAGE_TAG}|" k8s/deployment.yaml
-
-                git add k8s/deployment.yaml
-                git commit -m "Update image to ${env.IMAGE_TAG}" || echo "No changes to commit"
+                kubectl set image deployment/telco-app \
+                telco-app=${env.ECR_REPO}:${env.IMAGE_TAG} \
+                -n telco
                 """
-
-                withCredentials([usernamePassword(credentialsId: 'jenkins-creds', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
-                    sh '''
-                    git push https://$GIT_USER:$GIT_PASS@github.com/DevOps-JH-B79/telco-app.git develop
-                    '''
             }
-
-        }
-    }
-}
-    }
-
-    post {
-        success {
-            echo 'Pipeline executed successfully. ArgoCD will deploy the new version.'
-        }
-        failure {
-            echo 'Pipeline failed. Check logs.'
         }
     }
 }
